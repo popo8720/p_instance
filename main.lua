@@ -49,7 +49,7 @@ AddEventHandler('p_instance:join', function(id)
             bucket = GetFreeBucket(),
             players = {_src}
         }
-    else -- si existe te mete en esa
+    else
         table.insert(instances[id].players, _src) 
     end
 
