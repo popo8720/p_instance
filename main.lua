@@ -10,51 +10,54 @@ function GetFreeBucket()
     return bucket_id
 end
 
-AddEventHandler('playerDropped', function()
-	LeaveInstance(source)
-end)
+function LeaveInstance(_src, instance_id)
+    local instance = instances[instance_id]
 
-RegisterServerEvent('p_instance:s:leave')
-AddEventHandler('p_instance:s:leave', function()
-    local _src = source
-    SetPlayerRoutingBucket(_src, 0)
-    LeaveInstance(_src)
-end)
+    instance.players[_src] = nil
 
-function LeaveInstance(_src, dropped)
-    for instance_id, this in pairs(instances) do
-        local empty_check
-        for k, _id in pairs(v.players) do
-            if _id == _src then
-                empty_check = true
-                table.remove(this.players, k)
-            end
-        end
-
-        if empty_check then
-            if #this.players == 0 then
-                dispchannel[this.bucket] = true
-                instances[instance_id] = nil
-            end
-        end
+    if not next(instance.players) then
+        dispchannel[instance.bucket] = true
+        instances[instance_id] = nil        
     end
 end
 
-RegisterServerEvent('p_instance:join')
-AddEventHandler('p_instance:join', function(id)
+RegisterNetEvent('p_instance:join', function(id)
     local _src = source
+    local player = Player(_src)
+
+    if player.state.instance ~= nil then
+        LeaveInstance(_src, player.state.instance)
+    end
+
     if instances[id] == nil then
         instances[id] = { 
             id = id,
             bucket = GetFreeBucket(),
-            players = {_src}
+            players = {[_src] = true}
         }
     else
-        table.insert(instances[id].players, _src) 
+        instances[id].players[_src] = true
     end
+
+    player.state.instance = id
 
     SetRoutingBucketPopulationEnabled(instances[id].bucket, false)
     SetPlayerRoutingBucket(_src, instances[id].bucket)
+end)
+
+RegisterNetEvent('p_instance:s:leave', function()
+    local _src = source
+    local player = Player(_src)
+
+    if player.state.instance ~= nil then 
+        player.state.instance = nil
+        SetPlayerRoutingBucket(_src, 0)
+        LeaveInstance(_src)
+    end
+end)
+
+AddEventHandler('playerDropped', function()
+	LeaveInstance(source)
 end)
 
 RegisterCommand("instance_debug",function()
