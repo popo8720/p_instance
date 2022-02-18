@@ -53,13 +53,16 @@ RegisterNetEvent('p_instance:leave', function()
 
     if player.state.instance ~= nil then 
         SetPlayerRoutingBucket(_src, 0)
-        LeaveInstance(_src, player.state.instance)
+        
         player.state.instance = nil
     end
 end)
 
 AddEventHandler('playerDropped', function()
-	LeaveInstance(source)
+    local player = Player(_src)
+    if player.state.instance ~= nil then 
+        LeaveInstance(_src, player.state.instance)
+    end
 end)
 
 RegisterCommand("instance_debug",function()
