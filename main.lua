@@ -7,6 +7,8 @@ function GetFreeBucket()
         bucket_id = bucket_id + 1
     end
 
+    used_buckets[bucket_id] = true
+
     return bucket_id
 end
 
@@ -16,7 +18,7 @@ function LeaveInstance(_src, instance_id)
     instance.players[_src] = nil
 
     if not next(instance.players) then
-        dispchannel[instance.bucket] = true
+        used_buckets[instance.bucket] = nil
         instances[instance_id] = nil        
     end
 end
@@ -45,14 +47,14 @@ RegisterNetEvent('p_instance:join', function(id)
     SetPlayerRoutingBucket(_src, instances[id].bucket)
 end)
 
-RegisterNetEvent('p_instance:s:leave', function()
+RegisterNetEvent('p_instance:leave', function()
     local _src = source
     local player = Player(_src)
 
     if player.state.instance ~= nil then 
-        player.state.instance = nil
         SetPlayerRoutingBucket(_src, 0)
-        LeaveInstance(_src)
+        LeaveInstance(_src, player.state.instance)
+        player.state.instance = nil
     end
 end)
 
