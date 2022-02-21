@@ -23,38 +23,36 @@ function LeaveInstance(_src, instance_id)
     end
 end
 
-RegisterNetEvent('p_instance:join', function(id)
-    local _src = source
+function JoinInstance(_src, instance_id)
+    if instances[instance_id] == nil then
+        local bucket = GetFreeBucket()
+
+        instances[instance_id] = { 
+            id = instance_id,
+            bucket = bucket,
+            players = {[_src] = true}
+        }
+
+        SetRoutingBucketPopulationEnabled(bucket, false)
+    else
+        instances[instance_id].players[_src] = true
+    end
+
+    SetPlayerRoutingBucket(_src, instances[instance_id].bucket)
+end
+
+AddStateBagChangeHandler("instance", nil, function(bag, _, value)
+    local id = bag:gsub("player:","")
+    local _src = tonumber(id)
     local player = Player(_src)
 
-    if player.state.instance ~= nil then
+    if player.state.instance then
+        SetPlayerRoutingBucket(_src, 0)
         LeaveInstance(_src, player.state.instance)
     end
 
-    if instances[id] == nil then
-        instances[id] = { 
-            id = id,
-            bucket = GetFreeBucket(),
-            players = {[_src] = true}
-        }
-    else
-        instances[id].players[_src] = true
-    end
-
-    player.state.instance = id
-
-    SetRoutingBucketPopulationEnabled(instances[id].bucket, false)
-    SetPlayerRoutingBucket(_src, instances[id].bucket)
-end)
-
-RegisterNetEvent('p_instance:leave', function()
-    local _src = source
-    local player = Player(_src)
-
-    if player.state.instance ~= nil then 
-        SetPlayerRoutingBucket(_src, 0)
-        
-        player.state.instance = nil
+    if value then
+        JoinInstance(_src, value)
     end
 end)
 
@@ -65,6 +63,6 @@ AddEventHandler('playerDropped', function()
     end
 end)
 
-RegisterCommand("instance_debug",function()
+RegisterCommand("instance_debug",function(_src)
     print(json.encode(instances))
 end, true)
