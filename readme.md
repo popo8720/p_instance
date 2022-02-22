@@ -6,24 +6,24 @@ The player's instance is set using the statebag instance. when setting the insta
 ##### server-side
 ```lua
 RegisterCommand("join_instance", function(source, args)
-	local instance_name = args[1]
+    local instance_name = args[1]
 
-	Player(source).state.instance = instance_name
+    Player(source).state.instance = instance_name
 end)
 
 RegisterCommand("leave_instance", function(source, args)
-	Player(source).state.instance = nil
+    Player(source).state.instance = nil
 end)
 ```
 ##### client-side
 ```lua
 RegisterCommand("join_instance", function(source, args)
-	local instance_name = args[1]
+    local instance_name = args[1]
 
-	LocalPlayer.state:set("instance", instance_name, true) 
+    LocalPlayer.state:set("instance", instance_name, true) 
 end)
 
 RegisterCommand("leave_instance", function(source, args)
-	LocalPlayer.state:set("instance", nil, true) 
+    LocalPlayer.state:set("instance", nil, true) 
 end)
 ```
