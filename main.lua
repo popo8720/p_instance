@@ -57,6 +57,7 @@ AddStateBagChangeHandler("instance", nil, function(bag, _, value)
 end)
 
 AddEventHandler('playerDropped', function()
+    local _src = source
     local player = Player(_src)
     if player.state.instance ~= nil then 
         LeaveInstance(_src, player.state.instance)
