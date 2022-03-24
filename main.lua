@@ -42,6 +42,8 @@ function JoinInstance(_src, instance_id)
 end
 
 AddStateBagChangeHandler("instance", nil, function(bag, _, value)
+    if not string.match(bag, "player:") then return end
+    
     local id = bag:gsub("player:","")
     local _src = tonumber(id)
     local player = Player(_src)
