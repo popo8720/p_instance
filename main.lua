@@ -61,7 +61,7 @@ end)
 AddEventHandler('playerDropped', function()
     local _src = source
     local player = Player(_src)
-    if player.state.instance ~= nil then 
+    if player and player.state.instance then 
         LeaveInstance(_src, player.state.instance)
     end
 end)
